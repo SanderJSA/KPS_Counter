@@ -2,54 +2,100 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Value_Output.H>
 #include <FL/Fl_Button.H>
-#include <memory>
+#include <thread>
+#include "KeyPresses.h"
 
-#ifdef _WIN32
-#include <Winuser.h>
-#else
-#include <iostream>
-#include <unistd.h>
-#include <fcntl.h>
-#include <error.h>
-#endif
+#define TIMER_DELAY 0.1
+#define ARRAY_SIZE (int)(1/TIMER_DELAY)
 
-#define TIMER_DELAY 0.005
-
+//Variables
 long totalPresses = 0;
+int curPresses = 0;
+int pressesPerSecond[ARRAY_SIZE];
+int curPosition = 0;
 
-Fl_Value_Output *setupGUI(int argc, char **argv);
-void setupCB(Fl_Value_Output *window);
-void windowsCB(void *data);
-void linuxCB(void *data);
+struct Data{
+	Fl_Value_Output *totPressesCounter;
+	Fl_Value_Output *kpsCounter;
+};
+
+Data *setupGUI(int argc, char **argv);
+void processKeyPresses(void *data);
 
 int main(int argc, char **argv)
 {
-
 	//Setup GUI and variables
-	auto *window = setupGUI(argc, argv);
+	auto *data = setupGUI(argc, argv);
 
 	//Creating timer callback
-	setupCB(window);
+	Fl::add_timeout(TIMER_DELAY, processKeyPresses, data);
 
-	//Run program
+	//Launching separate thread
+	std::thread keyThread(getKeyPresses, std::ref(curPresses));
+
+	//Run GUI
 	return Fl::run();
 }
 
 
-Fl_Value_Output *setupGUI(int argc, char **argv)
+Data *setupGUI(int argc, char **argv)
 {
-	Fl_Window *window = new Fl_Window(500,500);
-	Fl_Value_Output *totPressesCounter = new Fl_Value_Output(10, 20, 100, 40);
+	auto *window = new Fl_Window(500,500);
+
+	//Creating total presses counter
+	auto *totPressesCounter = new Fl_Value_Output(10, 20, 100, 40);
 	totPressesCounter->textsize(20);
-	totPressesCounter->label("                   Total number of keypresses");
-	totPressesCounter->align(FL_ALIGN_TOP);
-	totPressesCounter->value(totalPresses);
+	totPressesCounter->label("Total key presses");
+	totPressesCounter->align(FL_ALIGN_TOP_LEFT);
+
+	//Creating keys per second counter
+	auto *kpsCounter = new Fl_Value_Output(10, 80, 100, 40);
+	kpsCounter->textsize(20);
+	kpsCounter->label("Average keys/second");
+	kpsCounter->align(FL_ALIGN_TOP_LEFT);
 
 	window->end();
 	window->show(argc, argv);
 
-	return totPressesCounter;
+	return new Data{totPressesCounter, kpsCounter};
 }
+
+void processKeyPresses(void *data)
+{
+
+	//Reset
+	if (curPresses == -1)
+	{
+		curPresses = 0;
+		totalPresses = 0;
+	}
+
+	//Process new keystrokes
+	totalPresses += curPresses;
+	pressesPerSecond[curPosition] = curPresses;
+	int avgPresses = 0;
+	for (int i : pressesPerSecond)
+	{
+		avgPresses += i;
+	}
+
+	//Reached limit, go back to 0
+	curPosition++;
+	if (curPosition == ARRAY_SIZE)
+	{
+		curPosition = 0;
+	}
+
+
+	//Update GUI
+	((Data*)data)->totPressesCounter->value(totalPresses);
+	((Data*)data)->kpsCounter->value(avgPresses);
+
+	//Prepare for next callback
+	curPresses = 0;
+	Fl::repeat_timeout(TIMER_DELAY, processKeyPresses, data);
+}
+/*
 
 struct Data
 {
@@ -105,3 +151,4 @@ void linuxCB(void *data)
 	Fl::repeat_timeout(TIMER_DELAY, linuxCB, data);
 }
 #endif
+*/
