@@ -46,39 +46,41 @@ int main(int argc, char **argv)
 	return status;
 }
 
+Fl_Value_Output *createCounter(int position);
 
 Data *setupGUI(int argc, char **argv)
 {
-	auto *window = new Fl_Window(500,500, "KeyPerSecond Counter");
+	auto *window = new Fl_Window(250,410, "KPS Counter");
 
 	//Creating total presses counter
-	auto *totPressesCounter = new Fl_Value_Output(10, 20, 150, 40);
-	totPressesCounter->textsize(20);
+	auto *totPressesCounter = createCounter(0);
 	totPressesCounter->label("Total key presses");
-	totPressesCounter->align(FL_ALIGN_TOP_LEFT);
 
 	//Creating keys per second counter
-	auto *kpsCounter = new Fl_Value_Output(10, 80, 150, 40);
-	kpsCounter->textsize(20);
+	auto *kpsCounter = createCounter(1);
 	kpsCounter->label("Keys per second");
-	kpsCounter->align(FL_ALIGN_TOP_LEFT);
 
 	//Creating average keys per second counter
-	auto *avgKPS = new Fl_Value_Output(10, 140, 150, 40);
-	avgKPS->textsize(20);
+	auto *avgKPS = createCounter(2);
 	avgKPS->label("Average keys per second");
-	avgKPS->align(FL_ALIGN_TOP_LEFT);
 
 	//Creating maximum keys per second
-	auto *maxKPS = new Fl_Value_Output(10, 200, 150, 40);
-	maxKPS->textsize(20);
+	auto *maxKPS = createCounter(3);
 	maxKPS->label("Maximum keys per second");
-	maxKPS->align(FL_ALIGN_TOP_LEFT);
 
 	window->end();
 	window->show(argc, argv);
 
 	return new Data{totPressesCounter, kpsCounter, avgKPS, maxKPS};
+}
+
+Fl_Value_Output *createCounter(int position)
+{
+	int const interval = 100;
+	auto counter = new Fl_Value_Output(10, 20 + interval * position, 230, interval - 20);
+	counter->textsize(30);
+	counter->align(FL_ALIGN_TOP_LEFT);
+	return counter;
 }
 
 void processKeyPresses(void *data)

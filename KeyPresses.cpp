@@ -41,21 +41,21 @@ void windowsLoop(int &curPresses)
 			Fl::lock();
 			curPresses = -1;
 			Fl::unlock();
-			continue;
 		}
-
-		//A S l ;
-		if (GetAsyncKeyState(0x41) & 0x0001 ||
-			GetAsyncKeyState(0x53) & 0x0001 ||
-			GetAsyncKeyState(0x4C) & 0x0001 ||
-			GetAsyncKeyState(VK_OEM_1) & 0x0001)
+		else
 		{
-			Fl::lock();
-			curPresses++;
-			Fl::unlock();
+			for (int i = 0; i <= 223; i++)
+			{
+				if (GetAsyncKeyState(i) & 0x0001)
+				{
+					Fl::lock();
+					curPresses++;
+					Fl::unlock();
+				}
+			}
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(2));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 

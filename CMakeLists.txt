@@ -7,4 +7,7 @@ add_executable(KPSCounter main.cpp KeyPresses.cpp KeyPresses.h)
 
 FIND_PACKAGE(FLTK REQUIRED)
 TARGET_LINK_LIBRARIES(KPSCounter ${FLTK_LIBRARIES})
-TARGET_LINK_LIBRARIES(KPSCounter pthread)
+
+if (UNIX)
+    TARGET_LINK_LIBRARIES(KPSCounter pthread)
+endif (UNIX)
