@@ -3,11 +3,11 @@
 //
 
 #include "KeyPresses.h"
+#include <FL/Fl.H>
 
 #ifdef _WIN32
 #include <Windows.h>
 #include <WinUser.h>
-#include <FL/Fl.H>
 #include <thread>
 
 #else
@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <error.h>
+
 #endif
 
 void windowsLoop(int &curPresses);
@@ -29,6 +30,7 @@ void getKeyPresses(int &curPresses)
 #endif
 }
 
+#ifdef _WIN32
 void windowsLoop(int &curPresses)
 {
 	while (true)
@@ -56,3 +58,39 @@ void windowsLoop(int &curPresses)
 		std::this_thread::sleep_for(std::chrono::milliseconds(2));
 	}
 }
+
+#else
+
+struct input_event {
+	struct timeval time;
+	unsigned short type;
+	unsigned short code;
+	unsigned int value;
+};
+
+void linuxLoop(int &curPresses)
+{
+	//This works for my laptop keyboard on Manjaro
+	//If you want to find other available input device use the following command:
+	//grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=1[02]001[3Ff]' | grep -Eo 'event[0-9]+'
+	int input_fd = open("/dev/input/event3", O_RDONLY);
+
+	input_event event{};
+	while (read(input_fd, &event, sizeof(input_event)) > 0)
+	{
+		if (event.type == 1 && event.value == 1)
+		{
+			//Reset everything after pressing delete
+			if (event.code == 111)
+			{
+				curPresses = -1;
+			}
+			else
+			{
+				curPresses++;
+			}
+		}
+	}
+}
+
+#endif

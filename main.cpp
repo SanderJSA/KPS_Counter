@@ -124,27 +124,3 @@ void processKeyPresses(void *data)
 	curPresses = 0;
 	Fl::repeat_timeout(TIMER_DELAY, processKeyPresses, data);
 }
-
-
-/*
-struct input_event {
-	struct timeval time;
-	unsigned short type;
-	unsigned short code;
-	unsigned int value;
-};
-
-void linuxCB(void *data)
-{
-	input_event event{};
-	while (read(((Data*)data)->input_fd, &event, sizeof(input_event)) > 0)
-	{
-		totalPresses++;
-		((Data*)data)->windows->value(totalPresses);
-		((Data*)data)->windows->redraw();
-	}
-
-	Fl::repeat_timeout(TIMER_DELAY, linuxCB, data);
-}
-#endif
-*/
