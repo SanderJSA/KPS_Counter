@@ -70,7 +70,7 @@ struct input_event {
 
 void linuxLoop(int &curPresses)
 {
-	//This works for my laptop keyboard on Manjaro
+	//You might need to change "/dev/input/event3" if it doesn't work
 	//If you want to find other available input device use the following command:
 	//grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=1[02]001[3Ff]' | grep -Eo 'event[0-9]+'
 	int input_fd = open("/dev/input/event3", O_RDONLY);
@@ -80,6 +80,7 @@ void linuxLoop(int &curPresses)
 	{
 		if (event.type == 1 && event.value == 1)
 		{
+			Fl::lock();
 			//Reset everything after pressing delete
 			if (event.code == 111)
 			{
@@ -89,6 +90,7 @@ void linuxLoop(int &curPresses)
 			{
 				curPresses++;
 			}
+			Fl::unlock();
 		}
 	}
 }

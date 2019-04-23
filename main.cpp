@@ -92,6 +92,10 @@ void processKeyPresses(void *data)
 		totalPresses = 0;
 		secondsPassed = 1;
 		maxKPS = 0;
+		curPosition = 0;
+		avgPressesSec = 0;
+		for (int i = 0; i < ARRAY_SIZE; i++)
+			pressesOnSecond[i] = 0;
 	}
 
 	//Process new keystrokes
@@ -105,7 +109,7 @@ void processKeyPresses(void *data)
 		maxKPS = avgPressesSec;
 	}
 
-	//Reached limit, go back to 0
+	//Reached array limit, going back to 0
 	curPosition++;
 	if (curPosition == ARRAY_SIZE)
 	{
