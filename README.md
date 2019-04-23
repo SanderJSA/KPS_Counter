@@ -8,8 +8,8 @@ It currently displays:
 
 ![alt text](https://github.com/SanderJSA/KPS_Counter/blob/master/Preview.png "What it looks like in i3-gaps")
 
-Pressing Delete resets the counter.
-Pressing escape while focused closes the program.
+Pressing Delete resets the counter.  
+Pressing Escape while focused closes the program.  
 
 ## To install and run on linux:
 
