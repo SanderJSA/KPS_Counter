@@ -25,6 +25,11 @@ To run it:
 
 ## To install and run on windows:
 
-FLTK is required to compile  
-This is a CMake based project  
-I recommend using Clion to import the project and compile  
+FLTK is required to compile.  
+
+Using Clion:
+>This is a CMake based project.  
+>import the project in Clion and compile.  
+
+Using another IDE:
+>Import the source files and make sure FLTK can be included.  
